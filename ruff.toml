@@ -1,0 +1,43 @@
+line-length = 120
+src = [ "src" ]
+extend-include = [ "*.ipynb" ]
+
+format.docstring-code-format = true
+
+lint.select = [
+  "B",      # flake8-bugbear
+  "BLE",    # flake8-blind-except
+  "C4",     # flake8-comprehensions
+  "D",      # pydocstyle
+  "E",      # Error detected by Pycodestyle
+  "F",      # Errors detected by Pyflakes
+  "I",      # isort
+  "NPY",    # Numpy
+  "PD",     # pandas
+  "PERF",   # Perflint
+  "RUF",    # Ruff defaults
+  "SIM",    # flake8-simplify
+  "TID",    # flake8-tidy-imports
+  "UP",     # pyupgrade
+  "W",      # Warning detected by Pycodestyle
+  "A",      # flake8-builtins
+]
+lint.ignore = [
+  "B008", # Errors from function calls in argument defaults. These are fine when the result is immutable.
+  "D100", # Missing docstring in public module
+  "D104", # Missing docstring in public package
+  "D105", # __magic__ methods are often self-explanatory, allow missing docstrings
+  "D107", # Missing docstring in __init__
+  # Disable one in each pair of mutually incompatible rules
+  "D203", # We don’t want a blank line before a class docstring
+  "D213", # <> We want docstrings to start immediately after the opening triple quote
+  "D400", # first line should end with a period [Bug: doesn’t work with single-line docstrings]
+  "D401", # First line should be in imperative mood; try rephrasing
+  "E501", # line too long -> we accept long comment lines; formatter gets rid of long code lines
+  "E731", # Do not assign a lambda expression, use a def -> lambda expression assignments are convenient
+  "E741", # allow I, O, l as variable names -> I is the identity matrix
+]
+lint.per-file-ignores."*/__init__.py" = [ "F401" ]
+lint.per-file-ignores."docs/*" = [ "I" ]
+lint.per-file-ignores."tests/*" = [ "D" ]
+lint.pydocstyle.convention = "numpy"

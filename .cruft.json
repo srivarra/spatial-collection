@@ -1,0 +1,42 @@
+{
+  "template": "https://github.com/scverse/cookiecutter-scverse",
+  "commit": "5af61043f3deaccb51b5956249dabeba7ab34480",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "spatial-collection",
+      "package_name": "spatial_collection",
+      "project_description": "spatialcollection",
+      "author_full_name": "Sricharan Reddy Varra",
+      "author_email": "sricharanvarra@gmail.com",
+      "github_user": "srivarra",
+      "github_repo": "spatial-collection",
+      "license": "MIT License",
+      "ide_integration": true,
+      "_copy_without_render": [
+        ".github/workflows/build.yaml",
+        ".github/workflows/test.yaml",
+        "docs/_templates/autosummary/**.rst"
+      ],
+      "_exclude_on_template_update": [
+        "CHANGELOG.md",
+        "LICENSE",
+        "README.md",
+        "docs/api.md",
+        "docs/index.md",
+        "docs/notebooks/example.ipynb",
+        "docs/references.bib",
+        "docs/references.md",
+        "src/**",
+        "tests/**"
+      ],
+      "_render_devdocs": false,
+      "_jinja2_env_vars": {
+        "lstrip_blocks": true,
+        "trim_blocks": true
+      },
+      "_template": "https://github.com/scverse/cookiecutter-scverse"
+    }
+  },
+  "directory": null
+}

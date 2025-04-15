@@ -1,7 +1,7 @@
 from importlib.metadata import version
 
-from . import pl, pp, tl
+from .spatialcollection import SpatialCollection
 
-__all__ = ["pl", "pp", "tl"]
+__all__ = ["SpatialCollection"]
 
 __version__ = version("spatial-collection")

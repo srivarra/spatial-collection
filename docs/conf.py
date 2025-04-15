@@ -21,9 +21,9 @@ sys.path.insert(0, str(HERE / "extensions"))
 info = metadata("spatial-collection")
 project_name = info["Name"]
 author = info["Author"]
-copyright = f"{datetime.now():%Y}, {author}."
+copyright = f"{datetime.now():%Y}, {author}."  # noqa: A001
 version = info["Version"]
-urls = dict(pu.split(", ") for pu in info.get_all("Project-URL"))
+urls = dict(pu.split(", ") for pu in info.get_all("Project-URL"))  # type: ignore
 repository_url = urls["Source"]
 
 # The full version, including alpha/beta/rc tags

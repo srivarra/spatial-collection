@@ -1,19 +1,16 @@
 [build-system]
 build-backend = "hatchling.build"
-requires = [ "hatchling" ]
+requires = [ "hatchling", "uv-dynamic-versioning" ]
 
 [project]
 name = "spatial-collection"
-version = "0.0.1"
 description = "spatialcollection"
 readme = "README.md"
 license = { file = "LICENSE" }
 maintainers = [
   { name = "Sricharan Reddy Varra", email = "sricharanvarra@gmail.com" },
 ]
-authors = [
-  { name = "Sricharan Reddy Varra" },
-]
+authors = [ { name = "Sricharan Reddy Varra" } ]
 requires-python = ">=3.10"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
@@ -22,15 +19,26 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
+dynamic = [ "version" ]
 dependencies = [
-  "anndata",
   # for debug logging (referenced from the issue template)
+  "boltons>=25",
+  "emoji>=2.14.1",
+  "loguru>=0.7.3",
+  "more-itertools>=10.6",
+  "narwhals>=1.35",
+  "numcodecs<0.16",
+  "patito>=0.8.3",
+  "polars>=1.27.1",
+  "pydantic>=2.11.3",
+  "pydantic-zarr>=0.7",
+  "rich>=14",
+  "richuru>=0.1.1",
   "session-info2",
+  "spatialdata>=0.3.1.dev31",
+  "universal-pathlib>=0.2.6",
 ]
-optional-dependencies.dev = [
-  "pre-commit",
-  "twine>=4.0.2",
-]
+optional-dependencies.dev = [ "esbonio>=0.16.5", "pre-commit" ]
 optional-dependencies.doc = [
   "docutils>=0.8,!=0.18.*,!=0.19.*",
   "ipykernel",
@@ -47,70 +55,15 @@ optional-dependencies.doc = [
   "sphinxcontrib-bibtex>=1",
   "sphinxext-opengraph",
 ]
-optional-dependencies.test = [
-  "coverage",
-  "pytest",
-]
+optional-dependencies.nb = [ "jupyterlab>=4.4" ]
+optional-dependencies.test = [ "coverage", "pytest" ]
 # https://docs.pypi.org/project_metadata/#project-urls
 urls.Documentation = "https://spatial-collection.readthedocs.io/"
 urls.Homepage = "https://github.com/srivarra/spatial-collection"
 urls.Source = "https://github.com/srivarra/spatial-collection"
 
-[tool.hatch.build.targets.wheel]
-packages = [ "src/spatialcollection" ]
-
-[tool.hatch.envs.default]
-installer = "uv"
-features = [ "dev" ]
-
-[tool.hatch.envs.docs]
-features = [ "doc" ]
-scripts.build = "sphinx-build -M html docs docs/_build {args}"
-scripts.open = "python -m webbrowser -t docs/_build/html/index.html"
-scripts.clean = "git clean -fdX -- {args:docs}"
-
-[tool.hatch.envs.hatch-test]
-features = [ "test" ]
-
-[tool.ruff]
-line-length = 120
-src = [ "src" ]
-extend-include = [ "*.ipynb" ]
-
-format.docstring-code-format = true
-
-lint.select = [
-  "B",      # flake8-bugbear
-  "BLE",    # flake8-blind-except
-  "C4",     # flake8-comprehensions
-  "D",      # pydocstyle
-  "E",      # Error detected by Pycodestyle
-  "F",      # Errors detected by Pyflakes
-  "I",      # isort
-  "RUF100", # Report unused noqa directives
-  "TID",    # flake8-tidy-imports
-  "UP",     # pyupgrade
-  "W",      # Warning detected by Pycodestyle
-]
-lint.ignore = [
-  "B008", # Errors from function calls in argument defaults. These are fine when the result is immutable.
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D105", # __magic__ methods are often self-explanatory, allow missing docstrings
-  "D107", # Missing docstring in __init__
-  # Disable one in each pair of mutually incompatible rules
-  "D203", # We don’t want a blank line before a class docstring
-  "D213", # <> We want docstrings to start immediately after the opening triple quote
-  "D400", # first line should end with a period [Bug: doesn’t work with single-line docstrings]
-  "D401", # First line should be in imperative mood; try rephrasing
-  "E501", # line too long -> we accept long comment lines; formatter gets rid of long code lines
-  "E731", # Do not assign a lambda expression, use a def -> lambda expression assignments are convenient
-  "E741", # allow I, O, l as variable names -> I is the identity matrix
-]
-lint.per-file-ignores."*/__init__.py" = [ "F401" ]
-lint.per-file-ignores."docs/*" = [ "I" ]
-lint.per-file-ignores."tests/*" = [ "D" ]
-lint.pydocstyle.convention = "numpy"
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
 
 [tool.pytest.ini_options]
 testpaths = [ "tests" ]
@@ -121,9 +74,12 @@ addopts = [
 
 [tool.coverage.run]
 source = [ "spatialcollection" ]
-omit = [
-  "**/test_*.py",
-]
+omit = [ "**/test_*.py" ]
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+bump = true
 
 [tool.cruft]
 skip = [
@@ -136,3 +92,6 @@ skip = [
   "docs/references.md",
   "docs/notebooks/example.ipynb",
 ]
+
+[tool.uv.sources]
+spatialdata = { git = "https://github.com/scverse/spatialdata", branch = "main" }
