@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import Mapping
 from itertools import chain
 from os import PathLike
@@ -33,6 +34,10 @@ from .utils import metadata_preserving_merge
 from .views import SpatialComponentView
 
 richuru.install()
+# Remove default handler and set level to WARNING to ignore INFO messages
+logger.remove()
+logger.add(sys.stderr, level="WARNING")
+
 pl.enable_string_cache()
 
 
@@ -190,10 +195,8 @@ class SpatialCollection:
         if all_sdata_metadata_dicts:
             # Create DF with potentially new columns. Ensure schema compatibility.
             try:
-                schema_override = {
-                    col: base_metadata_df.schema[col] for col in current_cols if col in base_metadata_df.schema
-                }
-                updates_df = pl.DataFrame(all_sdata_metadata_dicts, schema=schema_override)
+                # Let Polars infer the schema from the dictionaries directly
+                updates_df = pl.DataFrame(all_sdata_metadata_dicts)
                 # Ensure key column is categorical for the update operation
                 updates_df = updates_df.with_columns(pl.col(self._model_key_col).cast(pl.Categorical))
 
@@ -547,3 +550,19 @@ class SpatialCollection:
     def tables(self) -> SpatialComponentView:
         """Return the tables of the SpatialCollection."""
         return SpatialComponentView(self, "tables")
+
+    @property
+    def coordinate_systems(self):
+        """Return the coordinate systems of the SpatialCollection."""
+        cs = {}
+        for sdata_key, sdata in self.sdatas.items():
+            cs[sdata_key] = list(filter(lambda x: x != "global", sdata.coordinate_systems))
+        return cs
+
+    def update_from_sdata(self, sdata: SpatialData) -> None:
+        """Update the SpatialCollection from a SpatialData object."""
+        from spatialcollection.utils import _update_sdatas
+
+        self.sdatas.update(_update_sdatas(self, sdata))
+        self._sync_metadata()
+        self._add_attrs_to_sdatas()

@@ -20,4 +20,4 @@ __pycache__/
 /docs/_build/
 
 # others
-./scripts/
+/scripts/*

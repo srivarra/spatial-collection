@@ -6,7 +6,6 @@ from json import JSONDecodeError
 from os import PathLike
 from typing import TYPE_CHECKING
 
-import polars as pl
 import spatialdata as sd
 import zarr
 import zarr.storage
@@ -16,7 +15,7 @@ from zarr.errors import GroupNotFoundError, MetadataError
 
 if TYPE_CHECKING:
     from spatialcollection.spatialcollection import SpatialCollection
-from loguru import logger
+
 from spatialdata._io._utils import BadFileHandleMethod, handle_read_errors
 
 
@@ -51,13 +50,11 @@ def _manage_zarr_group(
 
 def read_zarr(path: PathLike | str) -> SpatialCollection:
     """Read a SpatialCollection from a Zarr store."""
-    from spatialcollection.spatialcollection import SpatialCollection
+    from spatialcollection import SpatialCollection
 
     path = UPath(path)
     sdatas = {}
-    collection_metadata = None
-    collection_key_col = None
-    collection_attrs = {}
+    collection_key_col: str | None = None
 
     with (
         _manage_zarr_group(path, None, "r") as group,
@@ -81,31 +78,14 @@ def read_zarr(path: PathLike | str) -> SpatialCollection:
         if "spatialcollection_attrs" in group.attrs:
             collection_attrs = group.attrs["spatialcollection_attrs"]
 
-        # Read the stored metadata table and key info
-        if "spatialcollection_metadata_table" in group.attrs:
-            metadata_list = group.attrs["spatialcollection_metadata_table"]
-            # Convert list of dicts back to DataFrame
-            collection_metadata = pl.DataFrame(metadata_list)
-            # Ensure the key column is categorical
-            key_info = group.attrs.get("spatialcollection_info", {})
-            internal_key = key_info.get("internal_sdata_key", "sdata_key")  # Default if info missing
-            collection_key_col = key_info.get("user_sdata_key", internal_key)  # Default if info missing
-            if internal_key in collection_metadata.columns:
-                collection_metadata = collection_metadata.with_columns(pl.col(internal_key).cast(pl.Categorical))
-            else:
-                logger.warning(f"Internal key '{internal_key}' not found in stored metadata table.")
-        else:
-            logger.warning(
-                "'spatialcollection_metadata_table' not found in Zarr attributes. Metadata will be reconstructed from sdata keys."
-            )
-            # Fallback: If table not stored, initialize with keys only (old behavior, less robust)
-            collection_metadata = None
-            collection_key_col = "sdata_key"  # Assume default
+            collection_key_col = collection_attrs.get("internal_sdata_key", "sdata_key")
 
     # Pass the read metadata and key column directly to the constructor
-    return SpatialCollection(
+    sc = SpatialCollection(
         sdatas=sdatas,
-        collection_metadata=collection_metadata,
+        collection_metadata=None,
         collection_key_col=collection_key_col,
         attrs=collection_attrs,
     )
+    sc.path = path
+    return sc
